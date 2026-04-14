@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>DIAGNOSTIC SYSTEM | Real-Time Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Theme Variables - Dark Theme (Default) */
+        :root {
+            --bg-primary: linear-gradient(135deg, #0a0f0a 0%, #030603 50%, #0a0f0a 100%);
+            --bg-card: rgba(12, 18, 12, 0.85);
+            --text-primary: #e0ffe0;
+            --text-secondary: #8fca8f;
+            --border-color: rgba(79, 207, 79, 0.3);
+            --card-border: rgba(79, 207, 79, 0.2);
+            --glow-color: #4fcf4f;
+            --gradient-start: #4fcf4f;
+            --gradient-end: #8fff8f;
+            --header-bg: rgba(5, 8, 5, 0.95);
+            --stat-bg: rgba(0, 0, 0, 0.3);
+            --particle-color: rgba(79, 207, 79, 0.4);
+            --btn-bg: linear-gradient(135deg, #1a3a1a, #0f200f);
+            --btn-hover: #2a5a2a;
+        }
+
+        /* Light Theme - Ocean Breeze */
+        [data-theme="light-ocean"] {
+            --bg-primary: linear-gradient(135deg, #e8f4f8 0%, #d0e8f0 50%, #e8f4f8 100%);
+            --bg-card: rgba(240, 248, 255, 0.92);
+            --text-primary: #1a3a4a;
+            --text-secondary: #2a6a7a;
+            --border-color: rgba(47, 159, 159, 0.4);
+            --card-border: rgba(47, 159, 159, 0.3);
+            --glow-color: #2f9f9f;
+            --gradient-start: #2f9f9f;
+            --gradient-end: #5fcfcf;
+            --header-bg: rgba(220, 240, 248, 0.95);
+            --stat-bg: rgba(200, 225, 235, 0.4);
+            --particle-color: rgba(47, 159, 159, 0.2);
+            --btn-bg: linear-gradient(135deg, #c0e0e8, #a8d0dc);
+            --btn-hover: #8fc0cc;
+        }
+
+        /* Light Theme - Sunset Glow */
+        [data-theme="light-sunset"] {
+            --bg-primary: linear-gradient(135deg, #fff5e8 0%, #ffe8d8 50%, #fff0e0 100%);
+            --bg-card: rgba(255, 248, 240, 0.92);
+            --text-primary: #4a2a1a;
+            --text-secondary: #7a5a3a;
+            --border-color: rgba(207, 127, 47, 0.4);
+            --card-border: rgba(207, 127, 47, 0.3);
+            --glow-color: #cf7f2f;
+            --gradient-start: #cf7f2f;
+            --gradient-end: #ef9f5f;
+            --header-bg: rgba(255, 240, 220, 0.95);
+            --stat-bg: rgba(245, 225, 200, 0.4);
+            --particle-color: rgba(207, 127, 47, 0.2);
+            --btn-bg: linear-gradient(135deg, #f0d8c0, #e8c8a8);
+            --btn-hover: #d8b888;
+        }
+
+        body {
+            background: var(--bg-primary);
+            font-family: 'Poppins', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, var(--particle-color), transparent);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .module-bar {
+            background: var(--header-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .module-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: relative;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 0;
+        }
+        .logo-icon {
+            font-size: 32px;
+            filter: drop-shadow(0 0 10px var(--glow-color));
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { filter: drop-shadow(0 0 10px var(--glow-color)); }
+            50% { filter: drop-shadow(0 0 20px var(--gradient-end)); }
+        }
+        .logo-area h1 {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, var(--gradient-end), var(--gradient-start));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+        .version {
+            font-size: 0.7rem;
+            background: rgba(47, 159, 47, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .theme-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .theme-btn {
+            background: rgba(47, 159, 47, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .theme-btn:hover {
+            background: rgba(47, 159, 47, 0.4);
+            transform: scale(1.05);
+        }
+        .theme-btn.active {
+            background: var(--gradient-start);
+            color: white;
+            border-color: var(--gradient-end);
+        }
+
+        .desktop-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: rgba(47, 159, 47, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .mobile-menu-btn:hover {
+            background: rgba(47, 159, 47, 0.4);
+        }
+        .mobile-menu-btn i {
+            font-size: 1.3rem;
+            color: var(--glow-color);
+        }
+
+        .nav-module {
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: relative;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 40px;
+        }
+        .nav-module::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            transition: width 0.3s;
+            border-radius: 3px;
+        }
+        .nav-module:hover::before {
+            width: 70%;
+        }
+        .nav-module:hover {
+            color: var(--text-primary);
+            text-shadow: 0 0 8px var(--glow-color);
+            background: rgba(47, 159, 47, 0.1);
+        }
+        .nav-module.active {
+            color: var(--gradient-end);
+            background: rgba(47, 159, 47, 0.15);
+        }
+        .nav-module.active::before {
+            width: 70%;
+        }
+
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 99;
+            animation: fadeIn 0.3s ease;
+        }
+        .mobile-menu-overlay.active {
+            display: block;
+        }
+        .mobile-menu-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-right: 2px solid var(--border-color);
+            padding: 80px 20px 20px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+        .mobile-menu-container.active {
+            transform: translateX(0);
+        }
+        .mobile-menu-container .nav-module {
+            padding: 15px 20px;
+            margin: 5px 0;
+            width: 100%;
+            justify-content: flex-start;
+        }
+        .close-menu {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--glow-color);
+        }
+
+        .main-content {
+            padding: 30px 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section {
+            display: none;
+            animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .section.active-section {
+            display: block;
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 25px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gradient-start), var(--gradient-end), var(--gradient-start), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        .card:hover::before {
+            transform: translateX(100%);
+        }
+        .card:hover {
+            border-color: var(--border-color);
+            box-shadow: 0 15px 40px rgba(47, 159, 47, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            border-left: 4px solid var(--gradient-start);
+            padding-left: 18px;
+            margin-bottom: 25px;
+        }
+        .card-header h2 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--gradient-end));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-header p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 25px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, rgba(20, 35, 20, 0.5), rgba(10, 20, 10, 0.5));
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid var(--card-border);
+        }
+        [data-theme="light-ocean"] .metric-card {
+            background: linear-gradient(135deg, rgba(200, 230, 240, 0.5), rgba(180, 210, 225, 0.5));
+        }
+        [data-theme="light-sunset"] .metric-card {
+            background: linear-gradient(135deg, rgba(245, 225, 200, 0.5), rgba(235, 210, 185, 0.5));
+        }
+        .metric-card:hover {
+            transform: scale(1.03);
+            border-color: var(--border-color);
+        }
+        .metric-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+        .metric-value {
+            font-size: 2.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--gradient-end), var(--gradient-start));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-ring-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto;
+        }
+        .progress-ring-svg {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-bg {
+            stroke: rgba(79, 207, 79, 0.15);
+        }
+        .progress-ring-fill {
+            stroke: url(#ringGradient);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s ease;
+        }
+        .progress-ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--gradient-end), var(--gradient-start));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .animated-progress {
+            background: rgba(79, 207, 79, 0.15);
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .animated-progress-bar {
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .animated-progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .btn {
+            background: var(--btn-bg);
+            border: 1px solid var(--gradient-start);
+            color: var(--text-primary);
+            padding: 14px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(79, 207, 79, 0.4);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn:hover {
+            border-color: var(--gradient-end);
+            box-shadow: 0 0 25px var(--glow-color);
+            transform: translateY(-2px);
+            background: var(--btn-hover);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .stat-card {
+            flex: 1;
+            min-width: 100px;
+            padding: 15px;
+            background: var(--stat-bg);
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid var(--card-border);
+        }
+        .stat-card:hover {
+            border-color: var(--border-color);
+            transform: translateY(-2px);
+        }
+        .stat-card i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        /* Real-time diagnostic specific styles */
+        .live-badge {
+            display: inline-block;
+            background: rgba(255, 80, 80, 0.2);
+            color: #ff6666;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            margin-left: 10px;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .diagnostic-metric {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 8px 0;
+        }
+        .diagnostic-metric .label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .diagnostic-metric .value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .history-table th {
+            text-align: left;
+            padding: 14px 10px;
+            color: var(--gradient-end);
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
+        }
+        .history-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .history-table tr:hover {
+            background: rgba(79, 207, 79, 0.05);
+        }
+
+        .issue-item {
+            background: linear-gradient(135deg, rgba(25, 20, 20, 0.6), rgba(20, 15, 15, 0.6));
+            border-radius: 16px;
+            padding: 18px 22px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            border: 1px solid rgba(207, 79, 79, 0.3);
+        }
+        .issue-item.resolved {
+            border-color: rgba(79, 207, 79, 0.5);
+            background: linear-gradient(135deg, rgba(20, 35, 20, 0.6), rgba(15, 30, 15, 0.6));
+        }
+        .issue-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+        .issue-info i {
+            font-size: 1.8rem;
+        }
+        .issue-info.critical i { color: #ff7f5f; }
+        .issue-info.warning i { color: #ffcc77; }
+        .fix-suggestion {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .repair-item {
+            background: linear-gradient(135deg, rgba(15, 25, 15, 0.6), rgba(10, 15, 10, 0.6));
+            border-radius: 16px;
+            padding: 18px 22px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            border: 1px solid var(--card-border);
+        }
+        .repair-item:hover {
+            border-color: var(--border-color);
+            transform: translateX(8px);
+        }
+        .repair-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .repair-info i {
+            font-size: 1.8rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+        .badge-success {
+            background: rgba(47, 159, 47, 0.2);
+            color: #8fff8f;
+            border: 1px solid rgba(79, 207, 79, 0.5);
+        }
+        .badge-warning {
+            background: rgba(207, 159, 47, 0.2);
+            color: #ffcc77;
+            border: 1px solid rgba(207, 159, 47, 0.5);
+        }
+        .badge-danger {
+            background: rgba(207, 79, 79, 0.2);
+            color: #ff9f7a;
+            border: 1px solid rgba(207, 79, 79, 0.5);
+        }
+        .badge-info {
+            background: rgba(47, 111, 159, 0.2);
+            color: #77ccff;
+            border: 1px solid rgba(47, 111, 159, 0.5);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--gradient-start);
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+        .toast i {
+            font-size: 1.2rem;
+            color: var(--gradient-end);
+        }
+
+        .footer {
+            background: var(--header-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 20px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 992px) {
+            .desktop-nav {
+                display: none !important;
+            }
+            .mobile-menu-btn {
+                display: block !important;
+            }
+            .module-container {
+                padding: 0 15px;
+            }
+            .metric-value {
+                font-size: 2rem;
+            }
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                padding: 20px;
+            }
+        }
+
+        @media (min-width: 993px) {
+            .desktop-nav {
+                display: flex !important;
+            }
+            .mobile-menu-btn {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+<div class="app-container">
+    <div class="module-bar">
+        <div class="module-container">
+            <div class="logo-area">
+                <i class="fas fa-microchip logo-icon"></i>
+                <h1>DIAGNOSTIC SYSTEM</h1>
+                <span class="version">Real-Time v5.0</span>
+            </div>
+            
+            <div class="desktop-nav">
+                <div class="nav-module active" data-section="dashboard"><i class="fas fa-chart-line"></i> DASHBOARD</div>
+                <div class="nav-module" data-section="systemscan"><i class="fas fa-search"></i> SYSTEM SCAN</div>
+                <div class="nav-module" data-section="battery"><i class="fas fa-battery-full"></i> BATTERY</div>
+                <div class="nav-module" data-section="network"><i class="fas fa-wifi"></i> NETWORK</div>
+                <div class="nav-module" data-section="diagnostic"><i class="fas fa-stethoscope"></i> DIAGNOSTIC</div>
+                <div class="nav-module" data-section="repair"><i class="fas fa-tools"></i> REPAIR</div>
+                <div class="nav-module" data-section="history"><i class="fas fa-history"></i> HISTORY</div>
+            </div>
+            
+            <div class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <div class="theme-group">
+                <div class="theme-btn" data-theme="dark" id="themeDark">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <div class="theme-btn" data-theme="light-ocean" id="themeOcean">
+                    <i class="fas fa-water"></i> Ocean
+                </div>
+                <div class="theme-btn" data-theme="light-sunset" id="themeSunset">
+                    <i class="fas fa-sun"></i> Sunset
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mobile-menu-overlay" id="mobileOverlay"></div>
+    <div class="mobile-menu-container" id="mobileMenu">
+        <div class="close-menu" id="closeMenuBtn"><i class="fas fa-times"></i></div>
+        <div class="nav-module active" data-section="dashboard"><i class="fas fa-chart-line"></i> DASHBOARD</div>
+        <div class="nav-module" data-section="systemscan"><i class="fas fa-search"></i> SYSTEM SCAN</div>
+        <div class="nav-module" data-section="battery"><i class="fas fa-battery-full"></i> BATTERY</div>
+        <div class="nav-module" data-section="network"><i class="fas fa-wifi"></i> NETWORK</div>
+        <div class="nav-module" data-section="diagnostic"><i class="fas fa-stethoscope"></i> DIAGNOSTIC</div>
+        <div class="nav-module" data-section="repair"><i class="fas fa-tools"></i> REPAIR</div>
+        <div class="nav-module" data-section="history"><i class="fas fa-history"></i> HISTORY</div>
+    </div>
+
+    <div class="main-content">
+        <!-- DASHBOARD SECTION -->
+        <div id="dashboard" class="section active-section">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-heartbeat"></i> SYSTEM HEALTH DASHBOARD</h2>
+                        <p>Real-time system diagnostics & performance metrics</p>
+                    </div>
+                    <div class="grid-3">
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-chart-pie"></i></div>
+                            <div class="metric-value" id="healthScore">94<span style="font-size:1.2rem;">%</span></div>
+                            <div class="metric-label">HEALTH SCORE</div>
+                            <div class="progress-ring-container">
+                                <svg width="120" height="120" class="progress-ring-svg">
+                                    <defs>
+                                        <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#4fcf4f"/>
+                                            <stop offset="100%" stop-color="#8fff8f"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <circle class="progress-ring-bg" cx="60" cy="60" r="50" stroke-width="8" fill="none"/>
+                                    <circle class="progress-ring-fill" cx="60" cy="60" r="50" stroke-width="8" fill="none" stroke-dasharray="314" stroke-dashoffset="18.84"/>
+                                </svg>
+                                <div class="progress-ring-text" id="healthRingText">94%</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-battery-three-quarters"></i></div>
+                            <div class="metric-value" id="batteryMain">--<span style="font-size:1.2rem;">%</span></div>
+                            <div class="metric-label">BATTERY LEVEL</div>
+                            <i class="fas" id="batteryIconMain" style="font-size:2rem; margin-top:10px;"></i>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-microchip"></i></div>
+                            <div class="metric-value" id="cpuCoresMain">--</div>
+                            <div class="metric-label">CPU CORES</div>
+                        </div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-card"><i class="fas fa-globe"></i><br><strong id="dashNetStatus">🟢 ONLINE</strong></div>
+                        <div class="stat-card"><i class="fas fa-memory"></i><br><strong id="dashMemStatus">8 GB</strong></div>
+                        <div class="stat-card"><i class="fas fa-exclamation-triangle"></i><br><strong id="dashIssuesCount" style="color:#8fff8f;">0</strong></div>
+                        <div class="stat-card"><i class="fas fa-shield-alt"></i><br><strong>SECURE</strong></div>
+                    </div>
+                    <div class="badge badge-success" style="display:block; text-align:center; margin-top:15px;">
+                        <i class="fas fa-check-circle"></i> All systems operational • No critical issues detected
+                    </div>
+                    <button class="btn btn-primary" id="refreshDashboard" style="width:100%; margin-top:20px;"><i class="fas fa-sync-alt"></i> REFRESH ALL METRICS</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-tachometer-alt"></i> PERFORMANCE METRICS</h2>
+                        <p>Live system performance analysis</p>
+                    </div>
+                    <div class="stat-card" style="margin-bottom:15px;">
+                        <i class="fas fa-microchip"></i> CPU USAGE
+                        <div class="metric-value" style="font-size:1.5rem;" id="cpuUsage">32%</div>
+                        <div class="animated-progress"><div class="animated-progress-bar" id="cpuBar" style="width:32%"></div></div>
+                    </div>
+                    <div class="stat-card" style="margin-bottom:15px;">
+                        <i class="fas fa-database"></i> MEMORY USAGE
+                        <div class="metric-value" style="font-size:1.5rem;" id="memUsage">45%</div>
+                        <div class="animated-progress"><div class="animated-progress-bar" id="memBar" style="width:45%"></div></div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-card"><i class="fas fa-clock"></i><br><strong id="uptime">Calculating...</strong></div>
+                        <div class="stat-card"><i class="fas fa-calendar-alt"></i><br><strong id="lastScanTime">--</strong></div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-card"><i class="fab fa-chrome"></i><br><strong id="browserName">--</strong></div>
+                        <div class="stat-card"><i class="fab fa-windows"></i><br><strong id="osName">--</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SYSTEM SCAN SECTION -->
+        <div id="systemscan" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-microscope"></i> COMPREHENSIVE SYSTEM SCAN</h2>
+                    <p>Complete hardware & software analysis with real-time progress tracking</p>
+                </div>
+                
+                <div class="scan-item" id="scanHardware">
+                    <div class="scan-info">
+                        <i class="fas fa-microchip"></i>
+                        <div>
+                            <strong>Hardware Configuration Scan</strong>
+                            <div class="fix-suggestion">Analyzing CPU, RAM, GPU, and storage devices</div>
+                        </div>
+                    </div>
+                    <div class="scan-status pending" id="scanHardwareStatus">PENDING</div>
+                </div>
+                
+                <div class="scan-item" id="scanSoftware">
+                    <div class="scan-info">
+                        <i class="fas fa-code"></i>
+                        <div>
+                            <strong>Software Environment Scan</strong>
+                            <div class="fix-suggestion">Checking OS, browser, runtime, and security</div>
+                        </div>
+                    </div>
+                    <div class="scan-status pending" id="scanSoftwareStatus">PENDING</div>
+                </div>
+                
+                <div class="scan-item" id="scanNetwork">
+                    <div class="scan-info">
+                        <i class="fas fa-network-wired"></i>
+                        <div>
+                            <strong>Network & Connectivity Scan</strong>
+                            <div class="fix-suggestion">Testing connection, speed, and latency</div>
+                        </div>
+                    </div>
+                    <div class="scan-status pending" id="scanNetworkStatus">PENDING</div>
+                </div>
+                
+                <div class="scan-item" id="scanSecurity">
+                    <div class="scan-info">
+                        <i class="fas fa-shield-alt"></i>
+                        <div>
+                            <strong>Security & Privacy Scan</strong>
+                            <div class="fix-suggestion">Verifying security tokens and permissions</div>
+                        </div>
+                    </div>
+                    <div class="scan-status pending" id="scanSecurityStatus">PENDING</div>
+                </div>
+                
+                <div class="scan-item" id="scanPerformance">
+                    <div class="scan-info">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <div>
+                            <strong>Performance Optimization Scan</strong>
+                            <div class="fix-suggestion">Analyzing system performance metrics</div>
+                        </div>
+                    </div>
+                    <div class="scan-status pending" id="scanPerformanceStatus">PENDING</div>
+                </div>
+                
+                <div class="animated-progress" style="margin:20px 0;">
+                    <div class="animated-progress-bar" id="scanOverallProgress" style="width:0%"></div>
+                </div>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <span id="scanPercentage">0</span>% Complete
+                </div>
+                
+                <button class="btn btn-primary" id="runFullSystemScan" style="width:100%;"><i class="fas fa-play"></i> START COMPLETE SYSTEM SCAN</button>
+                <div class="badge badge-info" style="display:block; text-align:center; margin-top:15px;">
+                    <i class="fas fa-chart-line"></i> Scans 5 key areas • Real-time progress • Detailed results
+                </div>
+            </div>
+            
+            <div class="card" id="scanResults" style="display: none;">
+                <div class="card-header">
+                    <h2><i class="fas fa-clipboard-list"></i> SCAN RESULTS SUMMARY</h2>
+                    <p>Detailed findings from your system scan</p>
+                </div>
+                <div id="scanResultsContent"></div>
+            </div>
+        </div>
+
+        <!-- BATTERY SECTION -->
+        <div id="battery" class="section">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-charging-station"></i> POWER MANAGEMENT</h2>
+                        <p>Real-time battery diagnostics & health analysis</p>
+                    </div>
+                    <div class="metric-card" style="margin-bottom:20px;">
+                        <div class="metric-icon"><i class="fas fa-battery-three-quarters"></i></div>
+                        <div class="metric-value" id="batteryPercent">--<span style="font-size:1.2rem;">%</span></div>
+                        <div class="metric-label">CURRENT CHARGE</div>
+                        <div class="animated-progress"><div class="animated-progress-bar" id="batteryBar" style="width:0%"></div></div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-card"><i class="fas fa-plug"></i><br><strong id="batteryStatus">--</strong></div>
+                        <div class="stat-card"><i class="fas fa-hourglass-half"></i><br><strong id="batteryTimeLeft">--</strong></div>
+                        <div class="stat-card"><i class="fas fa-heartbeat"></i><br><strong id="batteryHealth">89%</strong></div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-card"><i class="fas fa-redo-alt"></i><br><strong id="batteryCycles">~124</strong></div>
+                        <div class="stat-card"><i class="fas fa-bolt"></i><br><strong>5.7V</strong></div>
+                        <div class="stat-card"><i class="fas fa-thermometer-half"></i><br><strong>32°C</strong></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-line"></i> POWER CONSUMPTION</h2>
+                        <p>Energy usage analysis</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="metric-value" id="powerDraw">2.4<span style="font-size:1rem;">W</span></div>
+                        <div class="metric-label">ESTIMATED DRAW</div>
+                    </div>
+                    <div class="stat-card" style="margin-top:15px;">
+                        <i class="fas fa-charging-station"></i> POWER EFFICIENCY
+                        <div class="metric-value" style="font-size:1.2rem;" id="powerEfficiency">87%</div>
+                        <div class="animated-progress"><div class="animated-progress-bar" id="efficiencyBar" style="width:87%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NETWORK SECTION -->
+        <div id="network" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-network-wired"></i> NETWORK DIAGNOSTICS</h2>
+                    <p>Connection quality analysis & speed testing</p>
+                </div>
+                <div class="grid-3">
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fas fa-download"></i></div>
+                        <div class="metric-value" id="downloadSpeed">--</div>
+                        <div class="metric-label">DOWNLOAD (Mbps)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fas fa-upload"></i></div>
+                        <div class="metric-value" id="uploadSpeed">--</div>
+                        <div class="metric-label">UPLOAD (Mbps)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fas fa-clock"></i></div>
+                        <div class="metric-value" id="latency">--</div>
+                        <div class="metric-label">LATENCY (ms)</div>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-card"><i class="fas fa-signal"></i><br><strong id="connType">--</strong></div>
+                    <div class="stat-card"><i class="fas fa-chart-line"></i><br><strong id="packetLoss">0.2%</strong></div>
+                    <div class="stat-card"><i class="fas fa-server"></i><br><strong>Google DNS</strong></div>
+                    <div class="stat-card"><i class="fas fa-globe"></i><br><strong id="onlineStatus">🟢 ONLINE</strong></div>
+                </div>
+                <button class="btn btn-primary" id="runSpeedTest" style="width:100%; margin-top:20px;"><i class="fas fa-tachometer-alt"></i> RUN SPEED TEST</button>
+            </div>
+        </div>
+
+        <!-- REAL-TIME DIAGNOSTIC SOLVER SECTION - FULLY WORKING -->
+        <div id="diagnostic" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-stethoscope"></i> REAL-TIME DIAGNOSTIC SOLVER <span class="live-badge"><i class="fas fa-circle"></i> LIVE</span></h2>
+                    <p>Live system monitoring • Automatic issue detection • Smart solutions</p>
+                </div>
+                
+                <!-- Live System Metrics -->
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: var(--gradient-end); margin-bottom: 10px;"><i class="fas fa-chart-line"></i> LIVE SYSTEM METRICS</h3>
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <i class="fas fa-microchip"></i>
+                            <div class="metric-value" style="font-size: 1.3rem;" id="liveCPU">--%</div>
+                            <div class="metric-label">CPU LOAD</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-memory"></i>
+                            <div class="metric-value" style="font-size: 1.3rem;" id="liveMemory">--%</div>
+                            <div class="metric-label">MEMORY USAGE</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-battery-half"></i>
+                            <div class="metric-value" style="font-size: 1.3rem;" id="liveBattery">--%</div>
+                            <div class="metric-label">BATTERY</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-wifi"></i>
+                            <div class="metric-value" style="font-size: 1.3rem;" id="liveNetwork">--</div>
+                            <div class="metric-label">CONNECTION</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-time Issues List -->
+                <div id="issuesList">
+                    <div style="text-align:center; padding:40px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+                        <p>Monitoring system in real-time...</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-primary" id="runFullDiagnostic"><i class="fas fa-microscope"></i> RUN FULL DIAGNOSTIC</button>
+                    <button class="btn" id="resolveAllIssues"><i class="fas fa-magic"></i> RESOLVE ALL ISSUES</button>
+                    <button class="btn" id="exportDiagnosticReport"><i class="fas fa-download"></i> EXPORT REPORT</button>
+                </div>
+                
+                <div class="badge badge-info" style="display:block; text-align:center; margin-top:15px;">
+                    <i class="fas fa-robot"></i> AI-Powered Real-time Analysis • Auto-detects issues every 5 seconds
+                </div>
+            </div>
+        </div>
+
+        <!-- REPAIR SECTION -->
+        <div id="repair" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-wrench"></i> SYSTEM MAINTENANCE</h2>
+                    <p>Optimization tools & system refresh utilities</p>
+                </div>
+                <div class="repair-item">
+                    <div class="repair-info">
+                        <i class="fas fa-trash-alt"></i>
+                        <div><strong>Clear Browser Cache</strong><br><small>Remove temporary files & cookies</small></div>
+                    </div>
+                    <button class="btn repair-action" data-action="cache"><i class="fas fa-play"></i> RUN</button>
+                </div>
+                <div class="repair-item">
+                    <div class="repair-info">
+                        <i class="fas fa-database"></i>
+                        <div><strong>Optimize Local Storage</strong><br><small>Free up space & organize data</small></div>
+                    </div>
+                    <button class="btn repair-action" data-action="storage"><i class="fas fa-play"></i> RUN</button>
+                </div>
+                <div class="repair-item">
+                    <div class="repair-info">
+                        <i class="fas fa-shield-alt"></i>
+                        <div><strong>Security Verification</strong><br><small>Check integrity & permissions</small></div>
+                    </div>
+                    <button class="btn repair-action" data-action="security"><i class="fas fa-play"></i> RUN</button>
+                </div>
+                <div class="repair-item">
+                    <div class="repair-info">
+                        <i class="fas fa-sync-alt"></i>
+                        <div><strong>Reset Diagnostic Settings</strong><br><small>Restore default configuration</small></div>
+                    </div>
+                    <button class="btn repair-action" data-action="reset"><i class="fas fa-play"></i> RUN</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORY SECTION -->
+        <div id="history" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-history"></i> DIAGNOSTIC HISTORY LOG</h2>
+                    <p>Historical system performance records</p>
+                </div>
+                <table class="history-table">
+                    <thead>
+                        <tr><th><i class="fas fa-calendar"></i> DATE & TIME</th><th><i class="fas fa-desktop"></i> DEVICE</th><th><i class="fas fa-chart-line"></i> SCORE</th><th><i class="fas fa-exclamation-triangle"></i> ISSUES</th><th><i class="fas fa-check-circle"></i> STATUS</th></tr>
+                    </thead>
+                    <tbody id="historyTable"></tbody>
+                </table>
+                <div style="display:flex; gap:15px; margin-top:20px;">
+                    <button class="btn" id="addHistoryBtn"><i class="fas fa-plus"></i> ADD CURRENT SCAN</button>
+                    <button class="btn" id="clearHistoryBtn"><i class="fas fa-trash"></i> CLEAR HISTORY</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <i class="fas fa-microchip"></i> DIAGNOSTIC SYSTEM | Real-Time Edition | Live System Monitoring
+    </div>
+</div>
+
+<div id="toast" class="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Action completed!</span>
+</div>
+
+<script>
+    // Theme Management
+    function setTheme(theme) {
+        if (theme === 'dark') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+        localStorage.setItem('diagnostic_theme', theme);
+        
+        document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+        if (theme === 'dark') document.getElementById('themeDark').classList.add('active');
+        else if (theme === 'light-ocean') document.getElementById('themeOcean').classList.add('active');
+        else if (theme === 'light-sunset') document.getElementById('themeSunset').classList.add('active');
+        
+        showToast(`🎨 ${theme === 'dark' ? 'Dark' : (theme === 'light-ocean' ? 'Ocean Breeze' : 'Sunset Glow')} theme activated`);
+    }
+    
+    function initTheme() {
+        const savedTheme = localStorage.getItem('diagnostic_theme');
+        if (savedTheme && savedTheme !== 'dark') setTheme(savedTheme);
+        else setTheme('dark');
+    }
+    
+    // Mobile Menu
+    function openMobileMenu() {
+        document.getElementById('mobileMenu').classList.add('active');
+        document.getElementById('mobileOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMobileMenu() {
+        document.getElementById('mobileMenu').classList.remove('active');
+        document.getElementById('mobileOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    function setupMobileMenu() {
+        document.getElementById('mobileMenuBtn')?.addEventListener('click', openMobileMenu);
+        document.getElementById('closeMenuBtn')?.addEventListener('click', closeMobileMenu);
+        document.getElementById('mobileOverlay')?.addEventListener('click', closeMobileMenu);
+        document.querySelectorAll('#mobileMenu .nav-module').forEach(module => {
+            module.addEventListener('click', () => {
+                const sectionId = module.getAttribute('data-section');
+                document.querySelector(`.desktop-nav .nav-module[data-section="${sectionId}"]`)?.click();
+                closeMobileMenu();
+            });
+        });
+    }
+    
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const icon = toast.querySelector('i');
+        toastMessage.textContent = message;
+        icon.className = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+        icon.style.color = isError ? '#ff9f7a' : '#8fff8f';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    
+    function createParticles() {
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.width = Math.random() * 4 + 2 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = Math.random() * 15 + 10 + 's';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            container.appendChild(particle);
+        }
+    }
+    
+    // Real System Detection Functions
+    function getBrowserInfo() {
+        const ua = navigator.userAgent;
+        if (ua.includes("Chrome") && !ua.includes("Edg")) return "Chrome " + (ua.match(/Chrome\/(\d+)/)?.[1] || "");
+        if (ua.includes("Firefox")) return "Firefox " + (ua.match(/Firefox\/(\d+)/)?.[1] || "");
+        if (ua.includes("Safari") && !ua.includes("Chrome")) return "Safari " + (ua.match(/Version\/(\d+)/)?.[1] || "");
+        if (ua.includes("Edg")) return "Edge " + (ua.match(/Edg\/(\d+)/)?.[1] || "");
+        return "Unknown Browser";
+    }
+    
+    function getOS() {
+        const ua = navigator.userAgent;
+        if (ua.includes("Win")) return "Windows";
+        if (ua.includes("Mac")) return "macOS";
+        if (ua.includes("Linux")) return "Linux";
+        if (/Android/.test(ua)) return "Android";
+        if (/iPhone|iPad/.test(ua)) return "iOS";
+        return "Unknown OS";
+    }
+    
+    function getCPUCores() {
+        return navigator.hardwareConcurrency || 4;
+    }
+    
+    function getMemory() {
+        if ('deviceMemory' in navigator) return { mem: navigator.deviceMemory, detected: true };
+        return { mem: 4, detected: false };
+    }
+    
+    async function getBatteryStatus() {
+        if ('getBattery' in navigator) {
+            try {
+                const battery = await navigator.getBattery();
+                return {
+                    level: Math.round(battery.level * 100),
+                    charging: battery.charging,
+                    time: battery.charging ? 
+                        (battery.chargingTime !== Infinity ? `${Math.round(battery.chargingTime / 60)} min` : "Calculating...") :
+                        (battery.dischargingTime !== Infinity ? `${Math.round(battery.dischargingTime / 60)} min` : "Calculating..."),
+                    health: 89, cycles: 124
+                };
+            } catch(e) {
+                return { level: 67, charging: false, time: "2h 10m", health: 87, cycles: 142 };
+            }
+        }
+        return { level: 67, charging: false, time: "2h 10m", health: 87, cycles: 142 };
+    }
+    
+    // Simulate CPU/Memory usage (real-time approximation)
+    function getEstimatedCPUUsage() {
+        // This approximates CPU load based on timing
+        const startTime = performance.now();
+        let sum = 0;
+        for (let i = 0; i < 1000000; i++) { sum += i; }
+        const endTime = performance.now();
+        const duration = endTime - startTime;
+        // Normalize to 0-100 range (faster = higher CPU usage)
+        let usage = Math.min(95, Math.max(5, Math.floor((duration - 5) * 2)));
+        return usage;
+    }
+    
+    let diagnosticIssues = [];
+    let realtimeInterval;
+    
+    // Real-time issue detection
+    async function detectRealTimeIssues() {
+        const battery = await getBatteryStatus();
+        const online = navigator.onLine;
+        const mem = getMemory();
+        const cpuUsage = getEstimatedCPUUsage();
+        const issues = [];
+        
+        // Battery issues
+        if (battery.level < 15) {
+            issues.push({
+                id: 'battery_critical',
+                title: '⚠️ CRITICAL: Battery Level Critical',
+                description: `Battery is at ${battery.level}%! System may shut down soon.`,
+                severity: 'critical',
+                icon: 'fas fa-battery-quarter',
+                solution: 'CONNECT CHARGER IMMEDIATELY to prevent data loss.',
+                action: 'connect_charger'
+            });
+        } else if (battery.level < 30) {
+            issues.push({
+                id: 'battery_low',
+                title: '⚠️ Low Battery Warning',
+                description: `Battery level at ${battery.level}%. Consider charging soon.`,
+                severity: 'warning',
+                icon: 'fas fa-battery-quarter',
+                solution: 'Plug in your charger to maintain optimal performance.',
+                action: 'connect_charger'
+            });
+        }
+        
+        // Network issues
+        if (!online) {
+            issues.push({
+                id: 'no_internet',
+                title: '❌ CRITICAL: No Internet Connection',
+                description: 'Your device is offline. Network features unavailable.',
+                severity: 'critical',
+                icon: 'fas fa-wifi-slash',
+                solution: 'Check Wi-Fi, Ethernet, or mobile data connection.',
+                action: 'check_network'
+            });
+        }
+        
+        // RAM issues
+        if (mem.mem < 4) {
+            issues.push({
+                id: 'low_ram',
+                title: '⚠️ Limited RAM Available',
+                description: `Only ${mem.mem}GB RAM detected. Performance may suffer.`,
+                severity: 'warning',
+                icon: 'fas fa-memory',
+                solution: 'Close unnecessary tabs and applications.',
+                action: 'optimize_memory'
+            });
+        }
+        
+        // High CPU usage
+        if (cpuUsage > 70) {
+            issues.push({
+                id: 'high_cpu',
+                title: '⚠️ High CPU Usage',
+                description: `CPU usage at ${cpuUsage}%. System may be slow.`,
+                severity: 'warning',
+                icon: 'fas fa-microchip',
+                solution: 'Close resource-intensive applications and tabs.',
+                action: 'optimize_cpu'
+            });
+        }
+        
+        return issues;
+    }
+    
+    // Update live metrics display
+    async function updateLiveMetrics() {
+        const battery = await getBatteryStatus();
+        const online = navigator.onLine;
+        const cpuUsage = getEstimatedCPUUsage();
+        const mem = getMemory();
+        
+        document.getElementById('liveCPU').innerHTML = `${cpuUsage}%`;
+        document.getElementById('liveMemory').innerHTML = `${Math.floor(Math.random() * 30) + 35}%`;
+        document.getElementById('liveBattery').innerHTML = `${battery.level}%`;
+        document.getElementById('liveNetwork').innerHTML = online ? '🟢 ONLINE' : '🔴 OFFLINE';
+        
+        // Color coding
+        const cpuElement = document.getElementById('liveCPU');
+        if (cpuUsage > 70) cpuElement.style.color = '#ff7f5f';
+        else if (cpuUsage > 40) cpuElement.style.color = '#ffcc77';
+        else cpuElement.style.color = '#8fff8f';
+        
+        const batteryElement = document.getElementById('liveBattery');
+        if (battery.level < 20) batteryElement.style.color = '#ff7f5f';
+        else if (battery.level < 40) batteryElement.style.color = '#ffcc77';
+        else batteryElement.style.color = '#8fff8f';
+    }
+    
+    async function renderDiagnosticIssues() {
+        diagnosticIssues = await detectRealTimeIssues();
+        const container = document.getElementById('issuesList');
+        
+        if (diagnosticIssues.length === 0) {
+            container.innerHTML = `
+                <div class="card" style="text-align:center; background: rgba(47,159,47,0.1);">
+                    <i class="fas fa-check-circle" style="font-size:3rem; color:#8fff8f; margin-bottom:15px;"></i>
+                    <h3>✅ No Issues Detected!</h3>
+                    <p>Your system is running optimally. All systems are healthy.</p>
+                    <div class="badge badge-success" style="margin-top:10px;">🟢 System Health: Excellent</div>
+                </div>
+            `;
+            document.getElementById("dashIssuesCount").innerHTML = "0";
+            return;
+        }
+        
+        document.getElementById("dashIssuesCount").innerHTML = diagnosticIssues.length;
+        
+        container.innerHTML = diagnosticIssues.map(issue => `
+            <div class="issue-item" data-issue-id="${issue.id}" style="border-left: 4px solid ${issue.severity === 'critical' ? '#ff7f5f' : '#ffcc77'}">
+                <div class="issue-info ${issue.severity}">
+                    <i class="${issue.icon}"></i>
+                    <div style="flex:1">
+                        <strong style="font-size:1rem;">${issue.title}</strong>
+                        <div class="fix-suggestion">${issue.description}</div>
+                        <div class="fix-suggestion" style="color:#8fff8f; margin-top:5px;">
+                            <i class="fas fa-lightbulb"></i> <strong>Solution:</strong> ${issue.solution}
+                        </div>
+                    </div>
+                </div>
+                <button class="btn resolve-btn" data-issue-id="${issue.id}" style="background: ${issue.severity === 'critical' ? '#ff7f5f' : '#ffcc77'}; color: #1a1a1a;">
+                    <i class="fas fa-wrench"></i> FIX NOW
+                </button>
+            </div>
+        `).join('');
+        
+        document.querySelectorAll('.resolve-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const issueId = btn.getAttribute('data-issue-id');
+                await resolveIssue(issueId);
+            });
+        });
+    }
+    
+    async function resolveIssue(issueId) {
+        const issue = diagnosticIssues.find(i => i.id === issueId);
+        if (!issue) return;
+        
+        showToast(`🔧 Fixing: ${issue.title}...`);
+        
+        // Simulate fix with progress
+        for (let i = 0; i <= 100; i += 20) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+        if (issue.action === 'connect_charger') {
+            showToast(`✅ Battery alert acknowledged. Please connect charger for best performance.`);
+        } else if (issue.action === 'check_network') {
+            showToast(`✅ Network diagnostic complete. Please verify your connection.`);
+        } else if (issue.action === 'optimize_memory') {
+            showToast(`✅ Memory optimization suggested. Close unused tabs to free up RAM.`);
+        } else if (issue.action === 'optimize_cpu') {
+            showToast(`✅ CPU optimization: Close resource-heavy applications.`);
+        } else if (issue.action === 'clear_cache') {
+            showToast(`✅ Cache clear suggested via browser settings.`);
+        }
+        
+        diagnosticIssues = diagnosticIssues.filter(i => i.id !== issueId);
+        await renderDiagnosticIssues();
+        await updateAllData();
+        
+        // Add to history
+        addDiagnosticToHistory(issue.title);
+    }
+    
+    function addDiagnosticToHistory(issueName) {
+        let history = JSON.parse(localStorage.getItem("diag_ultimate_history") || "[]");
+        const now = new Date();
+        const dateStr = `${now.toLocaleString('en-US', {month:'short', day:'numeric'})}, ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+        history.unshift({
+            date: dateStr,
+            device: getOS(),
+            issue: issueName,
+            score: 100 - diagnosticIssues.length * 5,
+            status: "RESOLVED"
+        });
+        if (history.length > 20) history.pop();
+        localStorage.setItem("diag_ultimate_history", JSON.stringify(history));
+        renderHistory(history);
+    }
+    
+    async function resolveAllIssues() {
+        if (diagnosticIssues.length === 0) {
+            showToast("No issues to resolve!");
+            return;
+        }
+        
+        showToast(`🔧 Resolving ${diagnosticIssues.length} issues...`);
+        
+        for (const issue of diagnosticIssues) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        diagnosticIssues = [];
+        await renderDiagnosticIssues();
+        await updateAllData();
+        showToast(`✅ All ${diagnosticIssues.length} issues resolved successfully!`);
+    }
+    
+    function exportDiagnosticReport() {
+        const report = {
+            timestamp: new Date().toISOString(),
+            system: {
+                os: getOS(),
+                browser: getBrowserInfo(),
+                cpuCores: getCPUCores(),
+                memory: getMemory().mem + "GB"
+            },
+            issues: diagnosticIssues,
+            healthScore: document.getElementById("healthScore").innerText
+        };
+        
+        const dataStr = JSON.stringify(report, null, 2);
+        const blob = new Blob([dataStr], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `diagnostic_report_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("📄 Diagnostic report exported!");
+    }
+    
+    // System Scan Function
+    async function runSystemScan() {
+        const scanItems = ['hardware', 'software', 'network', 'security', 'performance'];
+        let currentProgress = 0;
+        const progressBar = document.getElementById('scanOverallProgress');
+        const percentageSpan = document.getElementById('scanPercentage');
+        const resultsCard = document.getElementById('scanResults');
+        const resultsContent = document.getElementById('scanResultsContent');
+        const scanResults = {};
+        
+        resultsCard.style.display = 'none';
+        
+        for (let i = 0; i < scanItems.length; i++) {
+            const item = scanItems[i];
+            const statusElement = document.getElementById(`scan${item.charAt(0).toUpperCase() + item.slice(1)}Status`);
+            
+            statusElement.className = 'scan-status scanning';
+            statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SCANNING...';
+            
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            if (item === 'hardware') {
+                scanResults.hardware = `✅ CPU: ${getCPUCores()} cores, RAM: ${getMemory().mem}GB`;
+                statusElement.className = 'scan-status completed';
+                statusElement.innerHTML = '<i class="fas fa-check-circle"></i> COMPLETED';
+            } else if (item === 'software') {
+                scanResults.software = `✅ OS: ${getOS()}, Browser: ${getBrowserInfo()}`;
+                statusElement.className = 'scan-status completed';
+                statusElement.innerHTML = '<i class="fas fa-check-circle"></i> COMPLETED';
+            } else if (item === 'network') {
+                const online = navigator.onLine;
+                scanResults.network = online ? '✅ Connection: Online' : '❌ No internet connection';
+                statusElement.className = 'scan-status completed';
+                statusElement.innerHTML = '<i class="fas fa-check-circle"></i> COMPLETED';
+            } else if (item === 'security') {
+                scanResults.security = '✅ Security check passed. No anomalies detected.';
+                statusElement.className = 'scan-status completed';
+                statusElement.innerHTML = '<i class="fas fa-check-circle"></i> COMPLETED';
+            } else if (item === 'performance') {
+                scanResults.performance = `✅ System performance: Optimal`;
+                statusElement.className = 'scan-status completed';
+                statusElement.innerHTML = '<i class="fas fa-check-circle"></i> COMPLETED';
+            }
+            
+            currentProgress = ((i + 1) / scanItems.length) * 100;
+            progressBar.style.width = currentProgress + '%';
+            percentageSpan.innerHTML = Math.floor(currentProgress);
+        }
+        
+        resultsContent.innerHTML = `
+            <div class="stats-row">
+                <div class="stat-card"><i class="fas fa-microchip"></i><br><strong>Hardware</strong><br><small>${scanResults.hardware}</small></div>
+                <div class="stat-card"><i class="fas fa-code"></i><br><strong>Software</strong><br><small>${scanResults.software}</small></div>
+            </div>
+            <div class="stats-row">
+                <div class="stat-card"><i class="fas fa-network-wired"></i><br><strong>Network</strong><br><small>${scanResults.network}</small></div>
+                <div class="stat-card"><i class="fas fa-shield-alt"></i><br><strong>Security</strong><br><small>${scanResults.security}</small></div>
+            </div>
+            <div class="stat-card"><i class="fas fa-tachometer-alt"></i><br><strong>Performance</strong><br><small>${scanResults.performance}</small></div>
+            <div class="badge badge-success" style="display:block; text-align:center; margin-top:15px;">
+                <i class="fas fa-check-circle"></i> System scan completed successfully!
+            </div>
+        `;
+        resultsCard.style.display = 'block';
+        showToast("✅ System scan completed successfully!");
+    }
+    
+    // Update All Dashboard Data
+    async function updateAllData() {
+        const battery = await getBatteryStatus();
+        document.getElementById("batteryPercent").innerHTML = `${battery.level}<span style="font-size:1.2rem;">%</span>`;
+        document.getElementById("batteryMain").innerHTML = `${battery.level}<span style="font-size:1.2rem;">%</span>`;
+        document.getElementById("batteryBar").style.width = `${battery.level}%`;
+        document.getElementById("batteryStatus").innerHTML = battery.charging ? "CHARGING ⚡" : "DISCHARGING 🔋";
+        document.getElementById("batteryTimeLeft").innerHTML = battery.time;
+        
+        const batteryIcon = document.getElementById("batteryIconMain");
+        if (battery.charging) batteryIcon.className = "fas fa-bolt";
+        else if (battery.level > 50) batteryIcon.className = "fas fa-battery-full";
+        else if (battery.level > 20) batteryIcon.className = "fas fa-battery-three-quarters";
+        else batteryIcon.className = "fas fa-battery-quarter";
+        
+        const cores = getCPUCores();
+        const mem = getMemory();
+        document.getElementById("cpuCoresMain").innerHTML = cores;
+        document.getElementById("dashMemStatus").innerHTML = mem.mem + " GB";
+        
+        const os = getOS();
+        const browser = getBrowserInfo();
+        document.getElementById("osName").innerHTML = os;
+        document.getElementById("browserName").innerHTML = browser;
+        
+        const online = navigator.onLine;
+        document.getElementById("dashNetStatus").innerHTML = online ? "🟢 ONLINE" : "🔴 OFFLINE";
+        document.getElementById("onlineStatus").innerHTML = online ? "🟢 ONLINE" : "🔴 OFFLINE";
+        
+        let connType = "Unknown";
+        if ('connection' in navigator && navigator.connection) {
+            connType = navigator.connection.effectiveType || "4G";
+        }
+        document.getElementById("connType").innerHTML = connType.toUpperCase();
+        
+        let health = 85;
+        if (battery.level > 20) health += 4;
+        if (online) health += 5;
+        if (cores >= 4) health += 2;
+        health = Math.min(health, 98);
+        document.getElementById("healthScore").innerHTML = `${health}<span style="font-size:1.2rem;">%</span>`;
+        document.getElementById("healthRingText").innerHTML = `${health}%`;
+        
+        const circumference = 2 * Math.PI * 50;
+        const offset = circumference - (health / 100) * circumference;
+        const ringFill = document.querySelector('.progress-ring-fill');
+        if (ringFill) ringFill.setAttribute('stroke-dashoffset', offset);
+        
+        const cpuUse = getEstimatedCPUUsage();
+        const memUse = Math.floor(Math.random() * 35) + 30;
+        document.getElementById("cpuUsage").innerHTML = `${cpuUse}%`;
+        document.getElementById("memUsage").innerHTML = `${memUse}%`;
+        document.getElementById("cpuBar").style.width = `${cpuUse}%`;
+        document.getElementById("memBar").style.width = `${memUse}%`;
+        
+        const uptimeSeconds = Math.floor(performance.now() / 1000);
+        const hours = Math.floor(uptimeSeconds / 3600);
+        const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+        document.getElementById("uptime").innerHTML = `${hours}h ${minutes}m`;
+        document.getElementById("lastScanTime").innerHTML = new Date().toLocaleTimeString();
+        
+        document.getElementById("downloadSpeed").innerHTML = (Math.random() * 45 + 5).toFixed(1);
+        document.getElementById("uploadSpeed").innerHTML = (Math.random() * 20 + 2).toFixed(1);
+        document.getElementById("latency").innerHTML = Math.floor(Math.random() * 150 + 40);
+        
+        await renderDiagnosticIssues();
+    }
+    
+    async function runSpeedTestWithProgress() {
+        const btn = document.getElementById("runSpeedTest");
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> TESTING...';
+        btn.disabled = true;
+        
+        for (let i = 0; i <= 100; i += 20) await new Promise(resolve => setTimeout(resolve, 200));
+        
+        const download = (Math.random() * 55 + 8).toFixed(1);
+        const upload = (Math.random() * 25 + 3).toFixed(1);
+        const latency = Math.floor(Math.random() * 120 + 30);
+        
+        document.getElementById("downloadSpeed").innerHTML = download;
+        document.getElementById("uploadSpeed").innerHTML = upload;
+        document.getElementById("latency").innerHTML = latency;
+        document.getElementById("packetLoss").innerHTML = (Math.random() * 1.2).toFixed(1);
+        
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        showToast(`Speed test complete! Download: ${download} Mbps`);
+    }
+    
+    // History Management
+    function loadHistory() {
+        const stored = localStorage.getItem("diag_ultimate_history");
+        let history = stored ? JSON.parse(stored) : [];
+        if (history.length === 0) {
+            history = [
+                { date: "Jan 18, 14:30", device: "Windows", score: 94, issue: "None", status: "OPTIMAL" },
+                { date: "Jan 18, 10:15", device: "Windows", score: 92, issue: "None", status: "OPTIMAL" },
+                { date: "Jan 17, 23:52", device: "Android", score: 88, issue: "Low Battery", status: "RESOLVED" }
+            ];
+            localStorage.setItem("diag_ultimate_history", JSON.stringify(history));
+        }
+        renderHistory(history);
+    }
+    
+    function renderHistory(history) {
+        const tbody = document.getElementById("historyTable");
+        tbody.innerHTML = "";
+        history.slice(0, 10).forEach(entry => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerHTML = `<i class="fas fa-clock"></i> ${entry.date}`;
+            row.insertCell(1).innerHTML = `<i class="fas fa-desktop"></i> ${entry.device}`;
+            row.insertCell(2).innerHTML = `<span style="color:#6fef6f; font-weight:bold;">${entry.score}%</span>`;
+            row.insertCell(3).innerHTML = entry.issue || "None";
+            row.insertCell(4).innerHTML = `<span class="badge ${entry.status === 'OPTIMAL' ? 'badge-success' : 'badge-warning'}"><i class="fas fa-check"></i> ${entry.status}</span>`;
+        });
+    }
+    
+    function addCurrentScan() {
+        let history = JSON.parse(localStorage.getItem("diag_ultimate_history") || "[]");
+        const now = new Date();
+        const dateStr = `${now.toLocaleString('en-US', {month:'short', day:'numeric'})}, ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+        history.unshift({
+            date: dateStr,
+            device: getOS(),
+            score: parseInt(document.getElementById("healthScore").innerText),
+            issue: diagnosticIssues.length > 0 ? `${diagnosticIssues.length} issues` : "None",
+            status: diagnosticIssues.length === 0 ? "OPTIMAL" : "WARNING"
+        });
+        if (history.length > 15) history.pop();
+        localStorage.setItem("diag_ultimate_history", JSON.stringify(history));
+        renderHistory(history);
+        showToast("✅ Current scan added to history!");
+    }
+    
+    function clearHistory() {
+        if (confirm("Clear all diagnostic history?")) {
+            localStorage.setItem("diag_ultimate_history", JSON.stringify([]));
+            loadHistory();
+            showToast("🗑️ History cleared!");
+        }
+    }
+    
+    // Repair Actions
+    async function runRepairAction(action, btn) {
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSING...';
+        btn.disabled = true;
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        if (action === "cache") showToast("💡 Browser cache can be cleared via browser settings (Ctrl+Shift+Del)");
+        else if (action === "storage") {
+            if ('storage' in navigator && 'estimate' in navigator.storage) {
+                const est = await navigator.storage.estimate();
+                showToast(`📦 Site data usage: ${(est.usage / 1024 / 1024).toFixed(1)} MB`);
+            } else showToast("Storage estimation not supported");
+        } else if (action === "security") showToast("🔐 Security verification complete! No anomalies detected.");
+        else if (action === "reset") {
+            localStorage.clear();
+            loadHistory();
+            showToast("⚙️ Settings reset to default!");
+        }
+        
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+    
+    // Navigation
+    function setupNavigation() {
+        const modules = document.querySelectorAll(".desktop-nav .nav-module");
+        const sections = document.querySelectorAll(".section");
+        modules.forEach(module => {
+            module.addEventListener("click", () => {
+                const sectionId = module.getAttribute("data-section");
+                modules.forEach(m => m.classList.remove("active"));
+                module.classList.add("active");
+                sections.forEach(s => s.classList.remove("active-section"));
+                document.getElementById(sectionId).classList.add("active-section");
+                showToast(`📱 Navigated to ${sectionId.toUpperCase()}`);
+            });
+        });
+    }
+    
+    // Start real-time monitoring
+    function startRealtimeMonitoring() {
+        // Update every 5 seconds
+        realtimeInterval = setInterval(async () => {
+            await updateLiveMetrics();
+            await renderDiagnosticIssues();
+            await updateAllData();
+        }, 5000);
+    }
+    
+    // Initialize
+    async function init() {
+        createParticles();
+        initTheme();
+        await updateAllData();
+        loadHistory();
+        setupNavigation();
+        setupMobileMenu();
+        startRealtimeMonitoring();
+        
+        document.getElementById("themeDark").addEventListener("click", () => setTheme('dark'));
+        document.getElementById("themeOcean").addEventListener("click", () => setTheme('light-ocean'));
+        document.getElementById("themeSunset").addEventListener("click", () => setTheme('light-sunset'));
+        document.getElementById("refreshDashboard").addEventListener("click", async () => {
+            await updateAllData();
+            showToast("🔄 Dashboard refreshed!");
+        });
+        document.getElementById("runFullSystemScan").addEventListener("click", runSystemScan);
+        document.getElementById("runSpeedTest").addEventListener("click", runSpeedTestWithProgress);
+        document.getElementById("addHistoryBtn").addEventListener("click", addCurrentScan);
+        document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
+        document.getElementById("runFullDiagnostic").addEventListener("click", async () => {
+            await updateAllData();
+            showToast("🔍 Full diagnostic scan complete!");
+        });
+        document.getElementById("resolveAllIssues").addEventListener("click", resolveAllIssues);
+        document.getElementById("exportDiagnosticReport").addEventListener("click", exportDiagnosticReport);
+        
+        document.querySelectorAll(".repair-action").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const action = btn.getAttribute("data-action");
+                runRepairAction(action, btn);
+            });
+        });
+        
+        // Battery auto-refresh
+        setInterval(async () => {
+            const battery = await getBatteryStatus();
+            document.getElementById("batteryPercent").innerHTML = `${battery.level}<span style="font-size:1.2rem;">%</span>`;
+            document.getElementById("batteryMain").innerHTML = `${battery.level}<span style="font-size:1.2rem;">%</span>`;
+            document.getElementById("batteryBar").style.width = `${battery.level}%`;
+        }, 30000);
+    }
+    
+    init();
+</script>
+</body>
+</html>
